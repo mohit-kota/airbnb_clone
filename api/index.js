@@ -25,10 +25,23 @@ mongoose.connect(process.env.MONGO_URL);
 
 app.use(cookieParser());
 app.use(express.json());
+var allowedOrigins = ['http://localhost:5173',
+                      'https://airbnb-clone-1-green.vercel.app/'];
+
 app.use(
   cors({
     credentials: true,
-    origin: "http://localhost:5173",
+    origin: function(origin, callback){
+      // allow requests with no origin 
+      // (like mobile apps or curl requests)
+      if(!origin) return callback(null, true);
+      if(allowedOrigins.indexOf(origin) === -1){
+        var msg = 'The CORS policy for this site does not ' +
+                  'allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
   })
 );
 
